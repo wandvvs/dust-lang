@@ -1,0 +1,8 @@
+let x = 15;
+let y = 1;
+
+x = y;
+let b = x;
+
+exit(b);
+

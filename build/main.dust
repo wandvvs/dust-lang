@@ -1,0 +1,5 @@
+let x = 15;
+let y = x;
+let z = y;
+
+exit(z);
