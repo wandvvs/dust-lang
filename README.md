@@ -31,7 +31,7 @@ make
 ```bash
 ./dust-lang <input.dust>
 ```
-## Grammer
+## Grammar
 ```
 program ::= statement_list
 
@@ -52,4 +52,40 @@ literal ::= integer_literal
 identifier ::= [a-zA-Z]+
 
 integer_literal ::= [0-9]+
+```
+
+## Example
+```
+let a = 5;
+let b = 10;
+
+a = b;
+
+let x = a;
+
+x = 29;
+
+exit(x);
+```
+
+Let`s compile it and run
+```bash
+./dust-lang input.dust
+./out
+```
+
+LLVM IR:
+```llvm
+; ModuleID = 'dust_prog'
+source_filename = "dust_prog"
+
+define i64 @main() {
+entrypoint:
+  ret i64 29
+}
+```
+
+Output:
+```
+29
 ```
