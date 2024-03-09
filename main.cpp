@@ -34,14 +34,19 @@ int main(int argc, char** argv)
 
     LLVMCompiler compiler("dust_prog", std::move(buffer));
     compiler.generate_main_function();
+    std::string llvm_ir = compiler.get_llvm_ir_as_string();
     std::cout << "[+] Compiled." << std::endl;
 
     compiler.verify_module();
     std::cout << "[+] Compile verifed" << std::endl;
 
-    LLVMExecutableBuilder exec(compiler.get_llvm_ir_as_string(), "test");
+    LLVMExecutableBuilder exec(compiler.get_llvm_ir_as_string(), "out");
     exec.build_executable();
     std::cout << "[+] Generated executable." << std::endl;
+
+    std::cout << "===================================" << std::endl;
+    std::cout << "LLVM IR: " << std::endl;
+    std::cout << llvm_ir << std::endl;
 
     return 0;
 }
