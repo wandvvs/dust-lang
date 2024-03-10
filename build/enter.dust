@@ -1,10 +1,6 @@
 let a = 5;
-let b = 10;
+let b = (a+5)/2;
 
-a = b;
+b = b + 3;
 
-let x = a;
-
-x = 29;
-
-exit(x);
+exit(b*2);
