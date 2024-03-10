@@ -63,16 +63,12 @@ factor : INT_LITERAL
 
 ## Example
 ```
-let a = 2 + 2;
-let b = (2 + 2) - (2 / 2) * 2;
+let a = 5;
+let b = (a+5)/2;
 
-a = b;
+b = b + 3;
 
-b = (a + a) + b;
-
-let z = (b + 2) * 2 + 6 / 2;
-
-exit(z);
+exit(b*2);
 ```
 
 Let`s compile it and run
@@ -86,11 +82,11 @@ LLVM IR:
 ```llvm
 define i64 @main() {
 entrypoint:
-  ret i64 100
+  ret i64 16
 }
 ```
 
 Output:
 ```
-100
+16
 ```
