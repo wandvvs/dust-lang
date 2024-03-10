@@ -11,6 +11,8 @@
 #include "../token/token_buffer/token_buffer.hpp"
 
 #include <unordered_map>
+#include <cstddef>
+#include <stdexcept>
 
 class LLVMCompiler
 {
@@ -22,6 +24,9 @@ private:
     std::unordered_map<std::string, llvm::Value*> m_variables;
     size_t parse_pos = 0;
 
+    TokenType current_type() const;
+    std::string current_value() const;
+
 public:
     LLVMCompiler(const std::string& module_name, TokenBuffer tokens_buffer);
 
@@ -29,6 +34,11 @@ public:
     void generate_main_function();
 
     llvm::Value* process_exit();
+
+    llvm::Value* process_expr();
+    llvm::Value* process_term();
+    llvm::Value* process_factor();
+
     void process_let();
     void process_assign(); 
 
