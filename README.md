@@ -2,16 +2,15 @@
 Сompiled, simple and imperative programming language. The compiler is made using LLVM. All tests were performed on Ubuntu Linux.
 
 # Was done
-- [x] Variable semantic
+- [x] Variables semantic
 - [x] Let statement
 - [x] Assign statement
 - [x] Exit statement
+- [x] Arithmetic operations with precedence
 - [ ] Print statement
 - [ ] Const variables
-- [ ] Adding and multiplication with priority
 - [ ] If statement
 - [ ] Loop statement
-- [ ] Functions statement
 - [ ] Etc...
 
 ## Getting started
@@ -33,59 +32,64 @@ make
 ```
 ## Grammar
 ```
-program ::= statement_list
+program : statement_list
 
-statement_list ::= statement | statement_list statement
+statement_list : statement
+               | statement_list statement
 
-statement ::= let_statement | assign_statement | exit_statement
+statement : let_statement
+          | assign_statement
+          | exit_statement
 
-let_statement ::= "let" identifier "=" expression ";"
+let_statement : LET IDENTIFIER '=' expression ';'
 
-assign_statement ::= identifier "=" expression ";"
+assign_statement : IDENTIFIER '=' expression ';'
 
-exit_statement ::= "exit" "(" expression ")" ";"
+exit_statement : EXIT '(' expression ')' ';'
 
-expression ::= identifier | literal
+expression : term
+           | expression '+' term
+           | expression '-' term
 
-literal ::= integer_literal
+term : factor
+     | term '*' factor
+     | term '/' factor
 
-identifier ::= [a-zA-Z]+
-
-integer_literal ::= [0-9]+
+factor : INT_LITERAL
+       | IDENTIFIER
+       | '(' expression ')'
 ```
 
 ## Example
 ```
-let a = 5;
-let b = 10;
+let a = 2+2;
+let b = (2+2) - (2/2) * 2;
 
 a = b;
 
-let x = a;
+b = (a+a)+b;
 
-x = 29;
+let z = (b+2) * 2 + 6 / 2;
 
-exit(x);
+exit(z);
 ```
 
 Let`s compile it and run
 ```bash
 ./dust-lang input.dust
 ./out
+echo $?
 ```
 
 LLVM IR:
 ```llvm
-; ModuleID = 'dust_prog'
-source_filename = "dust_prog"
-
 define i64 @main() {
 entrypoint:
-  ret i64 29
+  ret i64 100
 }
 ```
 
 Output:
 ```
-29
+100
 ```
