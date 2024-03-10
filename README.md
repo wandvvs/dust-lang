@@ -9,6 +9,7 @@
 - [x] Arithmetic operations with precedence
 - [ ] Print statement
 - [ ] Const variables
+- [ ] Data types
 - [ ] If statement
 - [ ] Loop statement
 - [ ] Etc...
