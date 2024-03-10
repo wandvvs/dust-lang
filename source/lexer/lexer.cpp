@@ -55,6 +55,14 @@ std::vector<Token> Lexer::tokenize()
                 {
                     tokens.emplace_back(TokenType::LET, std::move(keyword));
                 }
+                else if (keyword == "func")
+                {
+                    tokens.emplace_back(TokenType::FUNC, std::move(keyword));
+                }
+                else if (keyword == "void")
+                {
+                    tokens.emplace_back(TokenType::RETURN_TYPE, std::move(keyword));
+                }
                 else
                 {
                     tokens.emplace_back(TokenType::IDENTIFIER, std::move(keyword));
@@ -86,9 +94,41 @@ std::vector<Token> Lexer::tokenize()
                 move_next();
             }
 
+            else if (m_current == '+')
+            {
+                tokens.emplace_back(TokenType::PLUS, "+");
+                move_next();
+            }
+            else if (m_current == '-')
+            {
+                tokens.emplace_back(TokenType::MINUS, "-");
+                move_next();
+            }
+            else if (m_current == '*')
+            {
+                tokens.emplace_back(TokenType::MUL, "*");
+                move_next();
+            }
+            else if (m_current == '/')
+            {
+                tokens.emplace_back(TokenType::DIV, "/");
+                move_next();
+            }
+
             else if(m_current == ')')
             {
                 tokens.emplace_back(TokenType::RPAREN, ")");
+                move_next();
+            }
+
+            else if (m_current == '{')
+            {
+                tokens.emplace_back(TokenType::LEFT_BRACE, "{");
+                move_next();
+            }
+            else if (m_current == '}')
+            {
+                tokens.emplace_back(TokenType::RIGHT_BRACE, "}");
                 move_next();
             }
 
