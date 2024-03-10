@@ -62,7 +62,7 @@ factor : INT_LITERAL
 ```
 
 ## Example
-```
+```js
 let a = 5;
 let b = (a+5)/2;
 
