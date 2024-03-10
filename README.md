@@ -18,7 +18,7 @@
 Dependencies: LLVM-DEV, LLVM, C++20, GTest (not necessary)
 1. Clone repository:
 ```bash
-https://github.com/wandvvs/dust-lang
+git clone https://github.com/wandvvs/dust-lang
 ```
 2. Choose dust-lang directory and build it
 ```bash
@@ -63,14 +63,14 @@ factor : INT_LITERAL
 
 ## Example
 ```
-let a = 2+2;
-let b = (2+2) - (2/2) * 2;
+let a = 2 + 2;
+let b = (2 + 2) - (2 / 2) * 2;
 
 a = b;
 
-b = (a+a)+b;
+b = (a + a) + b;
 
-let z = (b+2) * 2 + 6 / 2;
+let z = (b + 2) * 2 + 6 / 2;
 
 exit(z);
 ```
