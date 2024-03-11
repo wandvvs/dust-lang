@@ -9,9 +9,11 @@
 - [x] Arithmetic operations with precedence
 - [X] Wrint line statement
 - [X] Const variables
-- [ ] Data types
+- [X] String variables
+- [ ] Flot variables
 - [ ] If statement
 - [ ] Loop statement
+- [ ] Math functions for extern std
 - [ ] Etc...
 
 ## Getting started
