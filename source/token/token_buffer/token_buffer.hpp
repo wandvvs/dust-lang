@@ -8,7 +8,7 @@ class TokenBuffer
 {
 public:
     std::vector<Token> m_tokens;
-    std::optional<Token> m_current;
+    Token m_current;
     size_t pos = 0;
 
 public:
