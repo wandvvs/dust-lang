@@ -51,9 +51,13 @@ std::vector<Token> Lexer::tokenize()
                 {
                     tokens.emplace_back(TokenType::WRITELN, std::move(keyword));
                 }
-                else if (keyword == "let")
+                else if (keyword == "mut")
                 {
-                    tokens.emplace_back(TokenType::LET, std::move(keyword));
+                    tokens.emplace_back(TokenType::MUT, std::move(keyword));
+                }
+                else if (keyword == "const")
+                {
+                    tokens.emplace_back(TokenType::CONST, std::move(keyword));
                 }
                 else if (keyword == "func")
                 {
@@ -63,6 +67,19 @@ std::vector<Token> Lexer::tokenize()
                 {
                     tokens.emplace_back(TokenType::RETURN_TYPE, std::move(keyword));
                 }
+                else if (keyword == "extern") {
+                move_next();
+                std::string next_keyword;
+                while (std::isalpha(m_current)) {
+                    next_keyword.push_back(m_current);
+                    move_next();
+                }
+                if (next_keyword == "std") {
+                    tokens.emplace_back(TokenType::EXTERN_STD, "extern std");
+                } else {
+                    tokens.emplace_back(TokenType::IDENTIFIER, std::move(keyword));
+                }
+            }
                 else
                 {
                     tokens.emplace_back(TokenType::IDENTIFIER, std::move(keyword));
@@ -165,7 +182,7 @@ std::vector<Token> Lexer::tokenize()
             else
             {
                 std::cerr << "Unexpected symbol: " << m_current << std::endl;
-                throw std::runtime_error("Lexer error. Unexpected error.");
+                exit(EXIT_FAILURE);
             }
         }
         else
