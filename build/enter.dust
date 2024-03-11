@@ -1,6 +1,10 @@
-let a = 5;
-let b = (a+5)/2;
+extern std;
 
-b = b + 3;
+mut a = 5;
+a = "123";
 
-exit(b*2);
+mut c = "123";
+c = 5;
+
+writeln(a);
+writeln(c);
