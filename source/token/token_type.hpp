@@ -12,7 +12,8 @@ enum class TokenType
     SEMICOLON,
     WRITELN,
     QOUTE,
-    LET,
+    MUT,
+    CONST,
     ASSIGN,
     IDENTIFIER,
     PLUS,
@@ -22,19 +23,24 @@ enum class TokenType
     FUNC,
     RETURN_TYPE,
     LEFT_BRACE,
-    RIGHT_BRACE
+    RIGHT_BRACE,
+    EXTERN_STD,
 };
 
-inline std::string token_type_to_string(TokenType m_type)
+constexpr inline std::string token_type_to_string(TokenType m_type)
 {
     switch (m_type)
     {
         case TokenType::EXIT:
             return "EXIT";
+        case TokenType::CONST:
+            return "CONST";
         case TokenType::INT_LITERAL:
             return "INT_LITERAL";
         case TokenType::FUNC:
             return "FUNC";
+        case TokenType::EXTERN_STD:
+            return "EXTERN_STD";
         case TokenType::PLUS:
             return "PLUS";
         case TokenType::MINUS:
@@ -61,8 +67,8 @@ inline std::string token_type_to_string(TokenType m_type)
             return "STRING_LITERAL";
         case TokenType::QOUTE:
             return "QOUTE";
-        case TokenType::LET:
-            return "LET";
+        case TokenType::MUT:
+            return "MUT";
         case TokenType::ASSIGN:
             return "ASSIGN";
         case TokenType::IDENTIFIER:
