@@ -439,42 +439,51 @@ void LLVMCompiler::generate_main_function()
     llvm::BasicBlock* entry = llvm::BasicBlock::Create(m_context, "entrypoint", main_func);
     m_builder.SetInsertPoint(entry);
 
-    while(parse_pos <= m_tokens_buffer.m_tokens.size())
+    for (; parse_pos < m_tokens_buffer.m_tokens.size(); ++parse_pos) 
     {
-        if(current_type() == TokenType::EXIT)
+        switch (current_type()) 
         {
-            llvm::Value* return_value = process_exit();
-            m_builder.CreateRet(return_value);
-        }
-        if(current_type() == TokenType::EXTERN_STD)
-        {
-            process_extern_std();
-        }
-        if(current_type() == TokenType::WRITELN)
-        {
-            if(std_externed)
+            case TokenType::EXIT:
             {
-                process_writeln();
+                m_builder.CreateRet(process_exit());
+                break;
             }
-            else
+            case TokenType::EXTERN_STD:
             {
-                std::cerr << "Syntax error. No finded extern 'std'" << std::endl;
-                exit(EXIT_FAILURE);
+                process_extern_std();
+                break;
             }
+            case TokenType::WRITELN:
+            {
+                if (std_externed) 
+                {
+                    process_writeln();
+                } 
+                else 
+                {
+                    std::cerr << "Syntax error. No 'std' extern found" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                break;
+            }
+            case TokenType::MUT:
+            {
+                process_mut();
+                break;
+            }
+            case TokenType::CONST:
+            {
+                process_const();
+                break;
+            }
+            case TokenType::IDENTIFIER:
+            {
+                process_assign();
+                break;
+            }
+            default:
+                break;
         }
-        if(current_type() == TokenType::MUT)
-        {
-            process_mut();
-        }
-        if(current_type() == TokenType::CONST)
-        {
-            process_const();
-        }
-        if(current_type() == TokenType::IDENTIFIER)
-        {
-            process_assign();
-        }
-        parse_pos++;
     }
 
     m_builder.CreateRet(llvm::ConstantInt::get(m_builder.getInt64Ty(), 0));
