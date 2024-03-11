@@ -1,10 +1,13 @@
 extern std;
 
-mut a = 5;
-a = "123";
+writeln("Hello, world!");
 
-mut c = "123";
-c = 5;
+mut a = 10;
+a = "from int to str";
 
 writeln(a);
-writeln(c);
+
+mut var = "from str to int";
+var = 5;
+
+writeln(var);
