@@ -3,12 +3,12 @@
 
 # Was done
 - [x] Variables semantic
-- [x] Let statement
+- [x] Mut statement
 - [x] Assign statement
 - [x] Exit statement
 - [x] Arithmetic operations with precedence
-- [ ] Print statement
-- [ ] Const variables
+- [X] Wrint line statement
+- [X] Const variables
 - [ ] Data types
 - [ ] If statement
 - [ ] Loop statement
@@ -28,65 +28,36 @@ cmake ..
 make
 ```
 3. Test language
+Example:
+```js
+extern std;
+
+mut a = 5;
+a = "Hello, world!";
+
+const b = "Dust";
+
+mut c = "string";
+c = b;
+
+c = "Test";
+
+writeln(c);
+writeln(b);
+writeln(2+2*2);
+
+exit(0);
+```
+
 ```bash
 ./dust-lang <input.dust>
-```
-## Grammar
-```
-program : statement_list
-
-statement_list : statement
-               | statement_list statement
-
-statement : let_statement
-          | assign_statement
-          | exit_statement
-
-let_statement : LET IDENTIFIER '=' expression ';'
-
-assign_statement : IDENTIFIER '=' expression ';'
-
-exit_statement : EXIT '(' expression ')' ';'
-
-expression : term
-           | expression '+' term
-           | expression '-' term
-
-term : factor
-     | term '*' factor
-     | term '/' factor
-
-factor : INT_LITERAL
-       | IDENTIFIER
-       | '(' expression ')'
-```
-
-## Example
-```js
-let a = 5;
-let b = (a+5)/2;
-
-b = b + 3;
-
-exit(b*2);
-```
-
-Let`s compile it and run
-```bash
-./dust-lang input.dust
 ./out
-echo $?
-```
-
-LLVM IR:
-```llvm
-define i64 @main() {
-entrypoint:
-  ret i64 16
-}
 ```
 
 Output:
 ```
-16
+Test
+string
+6
+1333 333 333
 ```
