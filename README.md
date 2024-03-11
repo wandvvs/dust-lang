@@ -1,6 +1,7 @@
 # Dust programming language
 Сompiled, simple and imperative programming language.
-The compiler is made using LLVM.W hen building the compiler, i didn`t implement AST, as many people do.
+The compiler is made using LLVM.
+When building the compiler, i didn`t implement AST, as many people do.
 All tests were performed on Ubuntu Linux.
 
 # Was done
