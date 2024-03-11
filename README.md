@@ -27,8 +27,7 @@ cd build/
 cmake ..
 make
 ```
-3. Test language
-Example:
+## Example
 ```js
 extern std;
 
