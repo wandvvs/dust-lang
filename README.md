@@ -17,18 +17,17 @@
 - [ ] Etc...
 
 ## Getting started
+1. Build it yourself
 Dependencies: LLVM-DEV, LLVM, C++20, GTest (not necessary)
-1. Clone repository:
 ```bash
 git clone https://github.com/wandvvs/dust-lang
-```
-2. Choose dust-lang directory and build it
-```bash
 cd dust-lang/
 cd build/
 cmake ..
 make
 ```
+2. Download actual release from [Dust language releases](https://github.com/wandvvs/dust-lang/releases/tag/dust_lang2) 
+
 ## Example
 ```js
 extern std;
