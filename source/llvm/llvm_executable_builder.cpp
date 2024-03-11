@@ -20,7 +20,7 @@ void LLVMExecutableBuilder::write_llvm_ir_to_file() const
 
 void LLVMExecutableBuilder::convert_ir_to_object() const
 {
-    std::string command = "llc -filetype=obj " + m_output_file + " -o " + m_output_file + ".o";
+    std::string command = "llc -filetype=obj " + m_output_file + " -o " + m_output_file + ".o -relocation-model=pic";
     int result = system(command.c_str());
 
     if(result != 0)
@@ -29,9 +29,10 @@ void LLVMExecutableBuilder::convert_ir_to_object() const
     }
 }
 
+
 void LLVMExecutableBuilder::link_objects() const
 {
-    std::string command = "clang " + m_output_file + ".o -o " + m_output_file;
+    std::string command = "clang " + m_output_file + ".o -o " + m_output_file + " -pie";
     int result = system(command.c_str());
 
     if(result != 0)
@@ -39,6 +40,8 @@ void LLVMExecutableBuilder::link_objects() const
         throw std::runtime_error("Failed to link objects");
     }
 }
+
+
 
 void LLVMExecutableBuilder::build_executable() const
 {
