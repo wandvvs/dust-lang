@@ -11,3 +11,6 @@ mut var = "from str to int";
 var = 5;
 
 writeln(var);
+
+const oo = "hh";
+writeln(oo);
