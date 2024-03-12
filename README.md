@@ -13,7 +13,7 @@ All tests were performed on Ubuntu Linux.
 - [X] Wrint line statement
 - [X] Const variables
 - [X] String variables
-- [ ] Flot variables
+- [ ] Float variables
 - [ ] If statement
 - [ ] Loop statement
 - [ ] Math functions for extern std
