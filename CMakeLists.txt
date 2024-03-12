@@ -23,11 +23,11 @@ add_executable(dust-lang
                source/token/token_buffer/token_buffer.cpp
                source/token/token_buffer/token_buffer.hpp
 
-               source/llvm/llvm_compiler.hpp
-               source/llvm/llvm_compiler.cpp
+               source/compiler/llvm_compiler.hpp
+               source/compiler/llvm_compiler.cpp
 
-               source/llvm/llvm_executable_builder.hpp
-               source/llvm/llvm_executable_builder.cpp
+               source/compiler/llvm_executable_builder.hpp
+               source/compiler/llvm_executable_builder.cpp
 )
 
 llvm_map_components_to_libnames(llvm_libs support core irreader)
