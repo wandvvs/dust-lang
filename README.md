@@ -31,7 +31,7 @@ cd build/
 cmake ..
 make
 ```
-### Download actual release from [dust language releases](https://github.com/wandvvs/dust-lang/releases/tag/dust_lang2) 
+### Download actual release from [dust language releases](https://github.com/wandvvs/dust-lang/releases/tag/dust_lang_0_0_3) 
 
 ## Example
 ```js
