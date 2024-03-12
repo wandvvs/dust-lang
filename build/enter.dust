@@ -1,16 +1,21 @@
 extern std;
 
-writeln("Hello, world!");
-
-mut a = 10;
-a = "from int to str";
+mut a = 3.14 * (5/2) + 5.1;
 
 writeln(a);
 
-mut var = "from str to int";
-var = 5;
+const b = true;
+writeln(b);
 
-writeln(var);
+mut a = false;
+a = "from boolean to str";
 
-const oo = "hh";
-writeln(oo);
+writeln(a);
+
+mut f = "str";
+f = false;
+writeln(a);
+
+f = (5+2) * 2 / 2;
+
+writeln(f);
