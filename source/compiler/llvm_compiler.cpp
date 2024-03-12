@@ -187,10 +187,6 @@ void LLVMCompiler::process_assign() {
             m_tokens_buffer.move_next();
         }
     }
-    else if(current_type() == TokenType::IDENTIFIER && m_boolean_variables.find(left_identifier_name) != m_boolean_variables.end())
-    {
-        std::cout << "fix" << std::endl;
-    }
     else
     {
         llvm::Value* right_value = process_expr();
@@ -200,7 +196,7 @@ void LLVMCompiler::process_assign() {
         set_variable(left_identifier_name, right_value);
     }
 
-   check_token_type(TokenType::SEMICOLON, "Expected for ';'");
+    check_token_type(TokenType::SEMICOLON, "Expected for ';'");
     m_tokens_buffer.move_next();
 }
 
@@ -222,8 +218,8 @@ llvm::Value* LLVMCompiler::process_exit()
 
     return_value = process_arithmetic(return_value);
 
-    llvm::Type* int64Type = llvm::Type::getInt64Ty(m_context);
-    return_value = m_builder.CreateFPToSI(return_value, int64Type, "castToInt64");
+    llvm::Type* int64_type = llvm::Type::getInt64Ty(m_context);
+    return_value = m_builder.CreateFPToSI(return_value, int64_type, "castToInt64");
 
     check_token_type(TokenType::RPAREN, "Expected ')'");
 
@@ -253,25 +249,11 @@ llvm::Value* LLVMCompiler::process_expr() {
         llvm::Value* temp = process_term();         
         if (operation == TokenType::PLUS) 
         {
-            if (value->getType()->isIntegerTy())
-            {
-                value = m_builder.CreateAdd(value, temp, "add");
-            }
-            else
-            {
-                value = m_builder.CreateFAdd(value, temp, "add");
-            }
+            value = m_builder.CreateFAdd(value, temp, "add");
         } 
         else if (operation == TokenType::MINUS) 
         {
-            if (value->getType()->isIntegerTy())
-            {
-                value = m_builder.CreateSub(value, temp, "sub");
-            }
-            else
-            {
-                value = m_builder.CreateFSub(value, temp, "sub");
-            }
+            value = m_builder.CreateFSub(value, temp, "sub");
         }
     }
 
@@ -305,18 +287,19 @@ llvm::Value* LLVMCompiler::process_factor() {
     if (current_type() == TokenType::LPAREN) {
         return process_expr();    
     }
-
-    if (current_type() == TokenType::INT_LITERAL) {
+    else if (current_type() == TokenType::INT_LITERAL || current_type() == TokenType::FLOAT_LITERAL) 
+    {
         value = llvm::ConstantFP::get(m_builder.getDoubleTy(), std::stod(current_value()));
         m_tokens_buffer.move_next();
-    } else if (current_type() == TokenType::FLOAT_LITERAL) {
-        value = llvm::ConstantFP::get(m_builder.getDoubleTy(), std::stod(current_value()));
-        m_tokens_buffer.move_next();
-    } else if (current_type() == TokenType::IDENTIFIER) {
+    } 
+    else if (current_type() == TokenType::IDENTIFIER) 
+    {
         std::string assigned_variable_name = current_value();
         value = m_variables.at(assigned_variable_name);
         m_tokens_buffer.move_next();
-    } else {
+    } 
+    else 
+    {
         std::cerr << "Unexpected token. Expected integer literal, identifier, or '('." << std::endl;
         exit(EXIT_FAILURE);
     }
@@ -583,15 +566,7 @@ void LLVMCompiler::generate_main_function()
             }
             case TokenType::WRITELN:
             {
-                if (std_externed) 
-                {
-                    process_writeln();
-                } 
-                else 
-                {
-                    std::cerr << "Syntax error. No 'std' extern found" << std::endl;
-                    exit(EXIT_FAILURE);
-                }
+                std_externed ? process_writeln() : (std::cerr << "Syntax error. No 'std' extern found" << std::endl, exit(EXIT_FAILURE));
                 break;
             }
             case TokenType::MUT:
