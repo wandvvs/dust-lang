@@ -1,9 +1,7 @@
-#include "source/lexer/lexer.hpp"
-#include "source/llvm/llvm_compiler.hpp"
 #include "source/token/token.hpp"
-#include "source/token/token_buffer/token_buffer.hpp"
-#include "source/llvm/llvm_executable_builder.hpp"
-#include <sstream>
+#include "source/lexer/lexer.hpp"
+#include "source/compiler/llvm_compiler.hpp"
+#include "source/compiler/llvm_executable_builder.hpp"
 
 int main(int argc, char** argv) 
 {
