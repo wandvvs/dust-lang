@@ -1,12 +1,16 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 
 enum class TokenType
 {
     EXIT,
     INT_LITERAL,
+    FLOAT_LITERAL,
     STRING_LITERAL,
+    TRUE,
+    FALSE,
     LPAREN,
     RPAREN,
     SEMICOLON,
@@ -35,6 +39,10 @@ constexpr inline std::string token_type_to_string(TokenType m_type)
             return "EXIT";
         case TokenType::CONST:
             return "CONST";
+        case TokenType::TRUE:
+            return "TRUE";
+        case TokenType::FALSE:
+            return "FALSE";
         case TokenType::INT_LITERAL:
             return "INT_LITERAL";
         case TokenType::FUNC:
@@ -73,6 +81,8 @@ constexpr inline std::string token_type_to_string(TokenType m_type)
             return "ASSIGN";
         case TokenType::IDENTIFIER:
             return "IDENTIFIER";
+        case TokenType::FLOAT_LITERAL:
+            return "FLOAT_LITERAL";
         default:
             return "UNKNOWN";
     }
