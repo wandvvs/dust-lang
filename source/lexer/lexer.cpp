@@ -63,6 +63,15 @@ std::vector<Token> Lexer::tokenize()
                 {
                     tokens.emplace_back(TokenType::FUNC, std::move(keyword));
                 }
+                else if (keyword == "true")
+                {
+                    tokens.emplace_back(TokenType::TRUE, std::move(keyword));
+                }
+                else if (keyword == "false")
+                {
+                    tokens.emplace_back(TokenType::FALSE, std::move(keyword));
+                }
+ 
                 else if (keyword == "void")
                 {
                     tokens.emplace_back(TokenType::RETURN_TYPE, std::move(keyword));
@@ -85,18 +94,29 @@ std::vector<Token> Lexer::tokenize()
                     tokens.emplace_back(TokenType::IDENTIFIER, std::move(keyword));
                 }
             }
-
-            else if (std::isdigit(m_current))
+            else if (std::isdigit(m_current) || m_current == '.')
             {
                 std::string initial_digit;
+                bool hasDecimal = false;
 
-                while(std::isdigit(m_current))
+                while(std::isdigit(m_current) || (!hasDecimal && m_current == '.'))
                 {
+                    if (m_current == '.')
+                    {
+                        hasDecimal = true;
+                    }
                     initial_digit.push_back(m_current);
                     move_next();
                 }
 
-                tokens.emplace_back(TokenType::INT_LITERAL, std::move(initial_digit));
+                if (hasDecimal)
+                {
+                    tokens.emplace_back(TokenType::FLOAT_LITERAL, std::move(initial_digit));
+                }
+                else
+                {
+                    tokens.emplace_back(TokenType::INT_LITERAL, std::move(initial_digit));
+                }
             }
 
             else if(m_current == ';')
