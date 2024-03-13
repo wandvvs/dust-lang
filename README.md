@@ -1,4 +1,4 @@
-# Dust programming language
+![image](https://github.com/wandvvs/dust-lang/assets/109384703/a4471bad-a968-44ea-9423-f682c69395f7)# Dust programming language
 Сompiled, simple imperative programming language created for the purpose of education with support for basic variable declarations, assignments, expressions, printing, and program termination.
 The compiler is made using LLVM.
 When building the compiler, i didn`t implement AST, as many people do.
@@ -37,25 +37,20 @@ make
 ```js
 extern std;
 
-mut a = 3.14 * (5/2) + 5.1;
-
-writeln(a);
-
-const b = true;
-writeln(b);
-
 mut a = false;
 a = "from boolean to str";
 
 writeln(a);
 
-mut f = "str";
-f = false;
-writeln(a);
+const b = 3.14 * (5/2) + 5.1;
+writeln(b);
 
-f = (5+2) * 2 / 2;
+mut str = "from str to int";
+str = 5.8*1.3;
 
-writeln(f);
+writeln(str);
+
+writeln(true);
 
 exit(5);
 ```
@@ -67,8 +62,8 @@ exit(5);
 
 Output:
 ```
-Test
-string
-6
-1333 333 333
+from boolean to str
+12.950000
+7.540000
+true
 ```
