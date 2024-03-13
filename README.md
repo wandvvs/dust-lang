@@ -1,4 +1,4 @@
-![image](https://github.com/wandvvs/dust-lang/assets/109384703/a4471bad-a968-44ea-9423-f682c69395f7)# Dust programming language
+# Dust programming language
 Сompiled, simple imperative programming language created for the purpose of education with support for basic variable declarations, assignments, expressions, printing, and program termination.
 The compiler is made using LLVM.
 When building the compiler, i didn`t implement AST, as many people do.
