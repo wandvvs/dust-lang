@@ -1,7 +1,12 @@
 #include "llvm_compiler.hpp"
+#include <cstdlib>
+#include <llvm-16/llvm/ADT/APFloat.h>
 #include <llvm-16/llvm/IR/Constant.h>
+#include <llvm-16/llvm/IR/Constants.h>
+#include <llvm-16/llvm/IR/GlobalVariable.h>
 #include <llvm-16/llvm/IR/Type.h>
 #include <llvm-16/llvm/IR/Value.h>
+#include <llvm-16/llvm/Support/Casting.h>
 
 LLVMCompiler::LLVMCompiler(const std::string& module_name, TokenBuffer tokens_buffer)
     : m_context(), m_module(module_name, m_context), m_builder(m_context), m_tokens_buffer(std::move(tokens_buffer))
@@ -92,7 +97,11 @@ void LLVMCompiler::process_assign() {
     check_token_type(TokenType::ASSIGN, "Expected '=' after identifier");
     m_tokens_buffer.move_next();
 
-    if(current_type() == TokenType::QOUTE)
+    if(current_type() == TokenType::CHECK)
+    {
+        process_check(left_identifier_name);
+    }
+    else if(current_type() == TokenType::QOUTE)
     {
         m_tokens_buffer.move_next();
         std::string right_string_value = current_value();
@@ -415,6 +424,284 @@ void LLVMCompiler::process_writeln()
     m_tokens_buffer.move_next();
 }
 
+void LLVMCompiler::process_check(const std::string& left_variable_name)
+{
+    m_tokens_buffer.move_next();
+
+    llvm::Value* left_expression = nullptr;
+    llvm::Value* right_expression = nullptr;
+
+    if(m_variables.find(left_variable_name) != m_variables.end())
+    {
+        m_variables.erase(left_variable_name);
+    }
+    else if(m_string_variables.find(left_variable_name) != m_string_variables.end())
+    {
+        m_string_variables.erase(left_variable_name);
+    }
+    else if(m_boolean_variables.find(left_variable_name) != m_boolean_variables.end())
+    {
+        m_boolean_variables.erase(left_variable_name);
+    }
+    if(current_type() == TokenType::FLOAT_LITERAL || current_type() == TokenType::INT_LITERAL || current_type() == TokenType::LPAREN
+    || m_variables.find(current_value()) != m_variables.end())
+    {
+        if(current_type() == TokenType::IDENTIFIER && m_variables.find(current_value()) == m_variables.end())
+        {
+            std::cerr << "Undefined identifier: " << current_value() << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        left_expression = process_expr();
+        left_expression = process_arithmetic(left_expression);
+
+        if(current_type() == TokenType::EQUAL || current_type() == TokenType::NOT_EQUAL)
+        {
+            TokenType equal_or_not_equal = current_type();
+            m_tokens_buffer.move_next();
+            if(current_type() == TokenType::IDENTIFIER && m_variables.find(current_value()) == m_variables.end())
+            {
+                std::cerr << "Undefined data type: " << current_value() << std::endl;
+                exit(EXIT_FAILURE);
+ 
+            }
+            if(current_type() == TokenType::FLOAT_LITERAL || current_type() == TokenType::INT_LITERAL || current_type() == TokenType::IDENTIFIER || current_type() == TokenType::LPAREN)
+            {
+                right_expression = process_expr();
+                right_expression = process_arithmetic(right_expression);
+
+                llvm::APFloat left_expression_value = llvm::cast<llvm::ConstantFP>(left_expression)->getValueAPF();
+                llvm::APFloat right_expression_value = llvm::cast<llvm::ConstantFP>(right_expression)->getValueAPF();
+
+                bool is_values_equal = left_expression_value.bitwiseIsEqual(right_expression_value);
+
+                std::string bool_string = equal_or_not_equal == TokenType::EQUAL ? is_values_equal ? "true" : "false"
+                    : !is_values_equal ? "true" : "false";
+
+                llvm::Value* bool_str_ptr = m_builder.CreateGlobalStringPtr(std::move(bool_string));
+
+                m_boolean_variables[left_variable_name] = bool_str_ptr;
+            }
+            else
+            {
+                std::cerr << "Syntax error. Expected for float or literal identifier or literal after '=='" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+        }
+        else if(current_type() == TokenType::LESS || current_type() == TokenType::MORE)
+        {
+            TokenType less_or_more = current_type();
+            m_tokens_buffer.move_next();
+
+            if(current_type() == TokenType::FLOAT_LITERAL || current_type() == TokenType::INT_LITERAL || current_type() == TokenType::IDENTIFIER)
+            {
+                right_expression = process_expr();
+                right_expression = process_arithmetic(right_expression);
+
+                llvm::APFloat left_expression_value = llvm::cast<llvm::ConstantFP>(left_expression)->getValueAPF();
+                llvm::APFloat right_expression_value = llvm::cast<llvm::ConstantFP>(right_expression)->getValueAPF();
+
+                bool is_less_or_more = less_or_more == TokenType::LESS ? left_expression_value.compare(right_expression_value) == llvm::APFloat::cmpLessThan
+                    : left_expression_value.compare(right_expression_value) == llvm::APFloat::cmpGreaterThan;
+
+                std::string bool_string = is_less_or_more ? "true" : "false";
+                llvm::Value* bool_str_ptr = m_builder.CreateGlobalStringPtr(std::move(bool_string));
+
+                m_boolean_variables[left_variable_name] = bool_str_ptr;
+            }
+        }
+        else
+        {
+            std::cerr << "Unexpected logical operator '" << current_value() << "'" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+    else if (m_string_variables.find(current_value()) != m_string_variables.end() && current_type() == TokenType::IDENTIFIER) 
+    {
+        left_expression = m_string_variables[current_value()];
+
+        m_tokens_buffer.move_next();
+
+        if (current_type() == TokenType::EQUAL || current_type() == TokenType::NOT_EQUAL) {
+            m_tokens_buffer.move_next();
+
+            if (current_type() == TokenType::QOUTE) {
+                m_tokens_buffer.move_next();
+
+                std::string right_string_literal = current_value();
+                m_tokens_buffer.move_next();
+                m_tokens_buffer.move_next();
+
+                right_expression = m_builder.CreateGlobalStringPtr(std::move(right_string_literal));
+
+                if (llvm::GlobalVariable* global_left_string = llvm::dyn_cast<llvm::GlobalVariable>(left_expression)) 
+                {
+                    if (llvm::GlobalVariable* global_right_string = llvm::dyn_cast<llvm::GlobalVariable>(right_expression)) 
+                    {
+                        llvm::ConstantDataSequential* global_left_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_left_string->getInitializer());
+                        llvm::ConstantDataSequential* global_right_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_right_string->getInitializer());
+
+                        if (global_left_string_data && global_right_string_data) 
+                        {
+                            bool is_strings_equal = global_left_string_data->getRawDataValues() == global_right_string_data->getRawDataValues();
+
+                            std::string bool_string = is_strings_equal ? "true" : "false";
+                            llvm::Value* bool_str_ptr = m_builder.CreateGlobalStringPtr(std::move(bool_string));
+
+                            m_boolean_variables[left_variable_name] = bool_str_ptr;
+
+                        }
+                    }
+                }
+            }
+            else if(current_type() == TokenType::IDENTIFIER && m_string_variables.find(current_value()) != m_string_variables.end())
+            {
+                right_expression = m_string_variables[current_value()];
+
+                if (llvm::GlobalVariable* global_left_string = llvm::dyn_cast<llvm::GlobalVariable>(left_expression)) 
+                {
+                    if (llvm::GlobalVariable* global_right_string = llvm::dyn_cast<llvm::GlobalVariable>(right_expression)) 
+                    {
+                        llvm::ConstantDataSequential* global_left_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_left_string->getInitializer());
+                        llvm::ConstantDataSequential* global_right_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_right_string->getInitializer());
+
+                        if (global_left_string_data && global_right_string_data) 
+                        {
+                            bool is_strings_equal = global_left_string_data->getRawDataValues() == global_right_string_data->getRawDataValues();
+
+                            std::string bool_string = is_strings_equal ? "true" : "false";
+                            llvm::Value* bool_str_ptr = m_builder.CreateGlobalStringPtr(std::move(bool_string));
+
+                            m_boolean_variables[left_variable_name] = bool_str_ptr;
+
+                        }
+                    }
+                }
+
+                m_tokens_buffer.move_next();
+            }
+            else
+            {
+                std::cerr << "Syntax error. You can equal only string literals or string variables." << std::endl;
+                exit(EXIT_FAILURE);
+            }
+        }
+    }
+
+    else if(current_type() == TokenType::QOUTE)
+    {
+        m_tokens_buffer.move_next();
+        std::string left_string_literal = current_value();
+        m_tokens_buffer.move_next();
+        m_tokens_buffer.move_next();
+
+        if(current_type() == TokenType::EQUAL || current_type() == TokenType::NOT_EQUAL)
+        {
+            m_tokens_buffer.move_next();
+
+            if(current_type() == TokenType::QOUTE)
+            {
+                m_tokens_buffer.move_next();
+                std::string right_string_literal = current_value();
+                m_tokens_buffer.move_next();
+
+                bool strings_equal = left_string_literal == right_string_literal;
+
+                std::string bool_string = strings_equal ? "true" : "false";
+                llvm::Value* bool_str_ptr = m_builder.CreateGlobalStringPtr(std::move(bool_string));
+
+                m_boolean_variables[left_variable_name] = bool_str_ptr;
+            }
+            else if (current_type() == TokenType::IDENTIFIER && m_string_variables.find(current_value()) != m_string_variables.end()) 
+            {
+                right_expression = m_string_variables[current_value()];  
+                left_expression = m_builder.CreateGlobalStringPtr(left_string_literal);
+
+                if (llvm::GlobalVariable* global_right_string = llvm::dyn_cast<llvm::GlobalVariable>(right_expression)) 
+                {
+                    if (llvm::GlobalVariable* global_left_string = llvm::dyn_cast<llvm::GlobalVariable>(left_expression)) 
+                    {
+                        llvm::ConstantDataSequential* global_right_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_right_string->getInitializer());
+                        llvm::ConstantDataSequential* global_left_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_left_string->getInitializer());
+
+                        if (global_right_string_data && global_left_string_data) 
+                        {
+                            bool is_strings_equal = global_right_string_data->getRawDataValues() == global_left_string_data->getRawDataValues();
+
+                            std::string bool_string = is_strings_equal ? "true" : "false";
+                            llvm::Value* bool_str_ptr = m_builder.CreateGlobalStringPtr(std::move(bool_string));
+
+                            m_boolean_variables[left_variable_name] = bool_str_ptr;
+                        }
+                        
+                    }
+                }
+            }
+           m_tokens_buffer.move_next();
+        }
+        else
+        {
+            std::cerr << "Unexpected logical operator '" << current_value() << "'" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+    else if(current_type() == TokenType::TRUE || current_type() == TokenType::FALSE || m_boolean_variables.find(current_value()) != m_boolean_variables.end())
+    {
+        std::string left_string_literal = current_value();
+
+        m_tokens_buffer.move_next();
+
+        if(current_type() == TokenType::EQUAL || current_type() == TokenType::NOT_EQUAL)
+        {
+            m_tokens_buffer.move_next();
+
+            if(current_type() == TokenType::TRUE || current_type() == TokenType::FALSE)
+            {
+                std::string right_string_literal = current_value();
+                m_tokens_buffer.move_next();
+
+                bool strings_equal = left_string_literal == right_string_literal;
+
+                std::string bool_string = strings_equal ? "true" : "false";
+                llvm::Value* bool_str_ptr = m_builder.CreateGlobalStringPtr(std::move(bool_string));
+
+                m_boolean_variables[left_variable_name] = bool_str_ptr;
+            }
+            else if(current_type() == TokenType::IDENTIFIER && m_boolean_variables.find(current_value()) != m_boolean_variables.end())
+            {
+                right_expression = m_boolean_variables[current_value()];  
+                left_expression = m_builder.CreateGlobalStringPtr(left_string_literal);
+
+                if (llvm::GlobalVariable* global_right_string = llvm::dyn_cast<llvm::GlobalVariable>(right_expression)) 
+                {
+                    if (llvm::GlobalVariable* global_left_string = llvm::dyn_cast<llvm::GlobalVariable>(left_expression)) 
+                    {
+                        llvm::ConstantDataSequential* global_right_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_right_string->getInitializer());
+                        llvm::ConstantDataSequential* global_left_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_left_string->getInitializer());
+
+                        if (global_right_string_data && global_left_string_data) 
+                        {
+                            bool is_strings_equal = global_right_string_data->getRawDataValues() == global_left_string_data->getRawDataValues();
+
+                            std::string bool_string = is_strings_equal ? "true" : "false";
+                            llvm::Value* bool_str_ptr = m_builder.CreateGlobalStringPtr(std::move(bool_string));
+
+                            m_boolean_variables[left_variable_name] = bool_str_ptr;
+                            m_tokens_buffer.move_next();
+                        }
+                        
+                    }
+                }
+            }
+
+        }
+    }
+    else
+    {
+        std::cerr << "Unexpected identifier or symbol after '?'" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
 
 void LLVMCompiler::process_mut() {
     m_tokens_buffer.move_next();
@@ -433,7 +720,11 @@ void LLVMCompiler::process_mut() {
     llvm::Value* value;
     std::string right_variable_name = current_value();
 
-    if(current_type() == TokenType::QOUTE)
+    if(current_type() == TokenType::CHECK)
+    {
+        process_check(std::move(variable_name));
+    }
+    else if(current_type() == TokenType::QOUTE)
     {
         m_tokens_buffer.move_next();
         check_token_type(TokenType::STRING_LITERAL, "Expected string literal after '\"'");
@@ -512,6 +803,10 @@ void LLVMCompiler::process_const()
 
         m_string_variables[variable_name] = value;
         m_tokens_buffer.move_next();
+    }
+    else if(current_type() == TokenType::CHECK)
+    {
+        process_check(std::move(variable_name));
     }
     else if (current_type() == TokenType::IDENTIFIER && m_string_variables.find(right_variable_name) != m_string_variables.end())
     {
