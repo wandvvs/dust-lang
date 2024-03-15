@@ -1,5 +1,5 @@
 # Dust programming language
-Сompiled, simple imperative programming language created for the purpose of education with support for basic variable declarations, assignments, expressions, printing, and program termination.
+Сompiled, simple imperative programming language created for the purpose of education with support for basic variable declarations, assignments, expressions, printing, program termination like exit() in C language and logical operators.
 The compiler is made using LLVM.
 When building the compiler, i didn`t implement AST, as many people do.
 All tests were performed on Ubuntu Linux.
@@ -15,7 +15,7 @@ All tests were performed on Ubuntu Linux.
 - [X] String variables
 - [X] Bool variables
 - [X] Float variables
-- [ ] Logical operators
+- [x] Logical operators
 - [ ] If statement
 - [ ] Loop statement
 - [ ] Math functions for extern std
@@ -37,22 +37,26 @@ make
 ```js
 extern std;
 
-mut a = false;
-a = "from boolean to str";
+const a = 10 + 2;
+mut b = (5 * 2) + 2;
 
-writeln(a);
+const aEqualB = ? a == b;
+writeln(aEqualB);
 
-const b = 3.14 * (5/2) + 5.1;
-writeln(b);
+const PI = 3.14;
+const EI = 1.57;
 
-mut str = "from str to int";
-str = 5.8*1.3;
+const piLessThanEI = ? PI < EI;
+writeln(piLessThanEI);
 
-writeln(str);
+mut test = ? PI == EI * 2;
+writeln(test);
 
-writeln(true);
+test = "froom boolean to str";
+writeln(test);
 
-exit(5);
+test = ? 1.57 * 2 == PI;
+writeln(test);
 ```
 
 ```bash
@@ -62,8 +66,9 @@ exit(5);
 
 Output:
 ```
-from boolean to str
-12.950000
-7.540000
+true
+false
+true
+froom boolean to str
 true
 ```
