@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <vector>
 
-Lexer::Lexer(const std::string& source)
+Lexer::Lexer(std::string source)
     : m_source(source), m_pos(0)
 {
     if (!m_source.empty())

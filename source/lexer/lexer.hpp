@@ -13,7 +13,9 @@ private:
 
     void move_next();
 public:
-    explicit Lexer(const std::string& source);
+    explicit Lexer(std::string source);
+
+    inline std::string get_source() { return m_source; }
 
     std::vector<Token> tokenize();
 };
