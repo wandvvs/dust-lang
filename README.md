@@ -1,5 +1,5 @@
 # Dust programming language
-Сompiled, simple and imperative programming language.
+Сompiled, simple imperative programming language created for the purpose of education with support for basic variable declarations, assignments, expressions, printing, and program termination.
 The compiler is made using LLVM.
 When building the compiler, i didn`t implement AST, as many people do.
 All tests were performed on Ubuntu Linux.
@@ -13,14 +13,16 @@ All tests were performed on Ubuntu Linux.
 - [X] Wrint line statement
 - [X] Const variables
 - [X] String variables
-- [ ] Float variables
+- [X] Bool variables
+- [X] Float variables
+- [ ] Logical operators
 - [ ] If statement
 - [ ] Loop statement
 - [ ] Math functions for extern std
 - [ ] Etc...
 
 ## Getting started
-1. Build it yourself
+### Build it yourself
 Dependencies: LLVM-DEV, LLVM, C++20, GTest (not necessary)
 ```bash
 git clone https://github.com/wandvvs/dust-lang
@@ -29,27 +31,28 @@ cd build/
 cmake ..
 make
 ```
-2. Download actual release from [dust language releases](https://github.com/wandvvs/dust-lang/releases/tag/dust_lang2) 
+### Download actual release from [dust language releases](https://github.com/wandvvs/dust-lang/releases/tag/dust_lang_0_0_3) 
 
 ## Example
 ```js
 extern std;
 
-mut a = 5;
-a = "Hello, world!";
+mut a = false;
+a = "from boolean to str";
 
-const b = "Dust";
+writeln(a);
 
-mut c = "string";
-c = b;
-
-c = "Test";
-
-writeln(c);
+const b = 3.14 * (5/2) + 5.1;
 writeln(b);
-writeln(2+2*2);
 
-exit(0);
+mut str = "from str to int";
+str = 5.8*1.3;
+
+writeln(str);
+
+writeln(true);
+
+exit(5);
 ```
 
 ```bash
@@ -59,8 +62,8 @@ exit(0);
 
 Output:
 ```
-Test
-string
-6
-1333 333 333
+from boolean to str
+12.950000
+7.540000
+true
 ```
