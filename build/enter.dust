@@ -1,21 +1,22 @@
 extern std;
 
-mut a = 3.14 * (5/2) + 5.1;
+const a = 10 + 2;
+mut b = (5 * 2) + 2;
 
-writeln(a);
+const aEqualB = ? a == b;
+writeln(aEqualB);
 
-const b = true;
-writeln(b);
+const PI = 3.14;
+const EI = 1.57;
 
-mut a = false;
-a = "from boolean to str";
+const piLessThanEI = ? PI < EI;
+writeln(piLessThanEI);
 
-writeln(a);
+mut test = ? PI == EI * 2;
+writeln(test);
 
-mut f = "str";
-f = false;
-writeln(a);
+test = "froom boolean to str";
+writeln(test);
 
-f = (5+2) * 2 / 2;
-
-writeln(f);
+test = ? 1.57 * 2 == PI;
+writeln(test);
