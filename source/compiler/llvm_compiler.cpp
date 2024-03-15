@@ -13,7 +13,7 @@ LLVMCompiler::LLVMCompiler(const std::string& module_name, TokenBuffer tokens_bu
     {
     }
 
-void LLVMCompiler::process_extern_std()
+void LLVMCompiler::process_use_io()
 {
     m_tokens_buffer.move_next();
     check_token_type(TokenType::SEMICOLON, "Expected ';' after extern");
@@ -21,7 +21,7 @@ void LLVMCompiler::process_extern_std()
     m_printf_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(m_context), {llvm::Type::getInt8PtrTy(m_context)}, true);
     m_printf_func = llvm::Function::Create(m_printf_type, llvm::Function::ExternalLinkage, "printf", m_module);   
 
-    std_externed = true;
+    use_io = true;
     m_tokens_buffer.move_next();
 }
 
@@ -835,7 +835,7 @@ void LLVMCompiler::process_const()
 }
 
 
-void LLVMCompiler::generate_main_function()
+void LLVMCompiler::generate()
 {
     llvm::FunctionType* func_type = llvm::FunctionType::get(m_builder.getInt64Ty(), false);
     llvm::Function* main_func = llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "main", m_module);
@@ -848,35 +848,23 @@ void LLVMCompiler::generate_main_function()
         switch (current_type()) 
         {
             case TokenType::EXIT:
-            {
                 m_builder.CreateRet(process_exit());
                 break;
-            }
-            case TokenType::EXTERN_STD:
-            {
-                process_extern_std();
+            case TokenType::USE_IO:
+                process_use_io();
                 break;
-            }
             case TokenType::WRITELN:
-            {
-                std_externed ? process_writeln() : (std::cerr << "Syntax error. No 'std' extern found" << std::endl, exit(EXIT_FAILURE));
+                use_io ? process_writeln() : (std::cerr << "Syntax error. No 'std' extern found" << std::endl, exit(EXIT_FAILURE));
                 break;
-            }
             case TokenType::MUT:
-            {
                 process_mut();
                 break;
-            }
             case TokenType::CONST:
-            {
                 process_const();
                 break;
-            }
             case TokenType::IDENTIFIER:
-            {
                 process_assign();
                 break;
-            }
             default:
                 break;
         }

@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     std::vector<Token> tokens = lexer.tokenize();
 
     LLVMCompiler compiler("dust_prog", std::move(TokenBuffer(std::move(tokens))));
-    compiler.generate_main_function();
+    compiler.generate();
     compiler.verify_module();
 
     LLVMExecutableBuilder exec(compiler.get_llvm_ir_as_string(), "out");

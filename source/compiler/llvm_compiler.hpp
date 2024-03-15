@@ -35,7 +35,7 @@ private:
     llvm::Value* process_exit();
     void process_writeln();
 
-    void process_extern_std();
+    void process_use_io();
 
     llvm::Value* process_expr();
     llvm::Value* process_term();
@@ -57,12 +57,13 @@ private:
 
     void check_token_type(TokenType expected_type, const std::string& error_message) const;
 
-    bool std_externed = false;
+    bool use_io = false;
 
 public:
     LLVMCompiler(const std::string& module_name, TokenBuffer tokens_buffer);
 
-    void generate_main_function();
-    std::string get_llvm_ir_as_string() const;
+    void generate();
     void verify_module();
+
+    std::string get_llvm_ir_as_string() const;
 };
