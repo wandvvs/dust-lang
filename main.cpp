@@ -2,6 +2,7 @@
 #include "source/lexer/lexer.hpp"
 #include "source/compiler/llvm_compiler.hpp"
 #include "source/compiler/llvm_executable_builder.hpp"
+#include "source/token/token_buffer/token_buffer.hpp"
 
 int main(int argc, char** argv) 
 {
@@ -22,29 +23,15 @@ int main(int argc, char** argv)
         source = stream_input.str();
     }
 
-
     Lexer lexer(std::move(source));
     std::vector<Token> tokens = lexer.tokenize();
-    std::cout << "[+] Tokenized." << std::endl;
 
-    TokenBuffer buffer(std::move(tokens));
-    std::cout << "[+] Buffered." << std::endl;
-
-    LLVMCompiler compiler("dust_prog", std::move(buffer));
+    LLVMCompiler compiler("dust_prog", std::move(TokenBuffer(std::move(tokens))));
     compiler.generate_main_function();
-    std::string llvm_ir = compiler.get_llvm_ir_as_string();
-    std::cout << "[+] Compiled." << std::endl;
-
     compiler.verify_module();
-    std::cout << "[+] Compile verifed" << std::endl;
 
     LLVMExecutableBuilder exec(compiler.get_llvm_ir_as_string(), "out");
     exec.build_executable();
-    std::cout << "[+] Generated executable." << std::endl;
-
-    std::cout << "===================================" << std::endl;
-    std::cout << "LLVM IR: " << std::endl;
-    std::cout << llvm_ir << std::endl;
 
     return 0;
 }
