@@ -35,7 +35,7 @@ make
 
 ## Example
 ```js
-extern std;
+use io;
 
 const a = 10 + 2;
 mut b = (5 * 2) + 2;
