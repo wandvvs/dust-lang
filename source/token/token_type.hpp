@@ -24,19 +24,30 @@ enum class TokenType
     MINUS,
     MUL,
     DIV,
-    FUNC,
-    RETURN_TYPE,
-    LEFT_BRACE,
-    RIGHT_BRACE,
     EXTERN_STD,
+    CHECK,
+    MORE,
+    LESS,
+    EQUAL,
+    NOT_EQUAL
 };
 
-constexpr inline std::string token_type_to_string(TokenType m_type)
+inline std::string token_type_to_string(TokenType m_type)
 {
     switch (m_type)
     {
         case TokenType::EXIT:
             return "EXIT";
+        case TokenType::CHECK:
+            return "CHECK";
+        case TokenType::MORE:
+            return "MORE";
+        case TokenType::NOT_EQUAL:
+            return "NOT EQUAL";
+        case TokenType::LESS:
+            return "LESS";
+        case TokenType::EQUAL:
+            return "EQUAL";
         case TokenType::CONST:
             return "CONST";
         case TokenType::TRUE:
@@ -45,8 +56,6 @@ constexpr inline std::string token_type_to_string(TokenType m_type)
             return "FALSE";
         case TokenType::INT_LITERAL:
             return "INT_LITERAL";
-        case TokenType::FUNC:
-            return "FUNC";
         case TokenType::EXTERN_STD:
             return "EXTERN_STD";
         case TokenType::PLUS:
@@ -57,12 +66,6 @@ constexpr inline std::string token_type_to_string(TokenType m_type)
             return "DIV";
         case TokenType::MUL:
             return "MUL";
-        case TokenType::RETURN_TYPE:
-            return "RETURN_TYPE";
-        case TokenType::LEFT_BRACE:
-            return "LEFT_BRACE";
-        case TokenType::RIGHT_BRACE:
-            return "RIGHT_BRACE";
         case TokenType::LPAREN:
             return "LPAREN";
         case TokenType::RPAREN:
