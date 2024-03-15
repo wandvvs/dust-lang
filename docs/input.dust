@@ -1,0 +1,26 @@
+extern std;
+
+writeln("From input to LLVM");
+
+const a = 10 + 2;
+mut b = (5 * 2) + 2;
+
+const aEqualB = ? a == b;
+writeln(aEqualB);
+
+const PI = 3.14;
+const EI = 1.57;
+
+const piLessThanEI = ? PI < EI;
+writeln(piLessThanEI);
+
+mut test = ? PI == EI * 2;
+writeln(test);
+
+test = "froom boolean to str";
+writeln(test);
+
+test = ? 1.57 * 2 == PI;
+writeln(test);
+
+exit(122);
