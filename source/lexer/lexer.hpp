@@ -12,7 +12,6 @@ private:
     char m_current;
 
     void move_next();
-
 public:
     explicit Lexer(const std::string& source);
 

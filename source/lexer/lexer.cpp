@@ -3,6 +3,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <stdexcept>
+#include <vector>
 
 Lexer::Lexer(const std::string& source)
     : m_source(source), m_pos(0)
@@ -16,13 +17,9 @@ void Lexer::move_next()
     ++m_pos;
 
     if (m_pos > m_source.size() - 1)
-    {
         m_current = '\0';
-    }
     else
-    {
         m_current = m_source[m_pos];
-    }
 }
 
 std::vector<Token> Lexer::tokenize()
@@ -59,10 +56,6 @@ std::vector<Token> Lexer::tokenize()
                 {
                     tokens.emplace_back(TokenType::CONST, std::move(keyword));
                 }
-                else if (keyword == "func")
-                {
-                    tokens.emplace_back(TokenType::FUNC, std::move(keyword));
-                }
                 else if (keyword == "true")
                 {
                     tokens.emplace_back(TokenType::TRUE, std::move(keyword));
@@ -70,11 +63,6 @@ std::vector<Token> Lexer::tokenize()
                 else if (keyword == "false")
                 {
                     tokens.emplace_back(TokenType::FALSE, std::move(keyword));
-                }
- 
-                else if (keyword == "void")
-                {
-                    tokens.emplace_back(TokenType::RETURN_TYPE, std::move(keyword));
                 }
                 else if (keyword == "extern") {
                 move_next();
@@ -151,28 +139,49 @@ std::vector<Token> Lexer::tokenize()
                 tokens.emplace_back(TokenType::DIV, "/");
                 move_next();
             }
-
+            else if(m_current == '<')
+            {
+                tokens.emplace_back(TokenType::LESS, "<");
+                move_next();
+            }
+            else if(m_current == '>')
+            {
+                tokens.emplace_back(TokenType::MORE, ">");
+                move_next();
+            }
+            else if(m_current == '?')
+            {
+                tokens.emplace_back(TokenType::CHECK, "?");
+                move_next();
+            }
             else if(m_current == ')')
             {
                 tokens.emplace_back(TokenType::RPAREN, ")");
                 move_next();
             }
 
-            else if (m_current == '{')
-            {
-                tokens.emplace_back(TokenType::LEFT_BRACE, "{");
-                move_next();
-            }
-            else if (m_current == '}')
-            {
-                tokens.emplace_back(TokenType::RIGHT_BRACE, "}");
-                move_next();
-            }
-
             else if(m_current == '=')
             {
-                tokens.emplace_back(TokenType::ASSIGN, "=");
                 move_next();
+                if(m_current == '=')
+                {
+                    tokens.emplace_back(TokenType::EQUAL, "==");
+                    move_next();
+                }
+                else
+                {
+                    tokens.emplace_back(TokenType::ASSIGN, "=");
+                }
+            }
+
+            else if(m_current == '!')
+            {
+                move_next();
+                if(m_current == '=')
+                {
+                    tokens.emplace_back(TokenType::NOT_EQUAL, "!=");
+                    move_next();
+                }
             }
 
             else if(m_current == '"')
@@ -187,8 +196,6 @@ std::vector<Token> Lexer::tokenize()
                     string_literal.push_back(m_current);
                     move_next();
                 }
-
-                std::cout << m_current << std::endl;
                 if(m_current != '\"')
                 {
                     std::cerr << "Lexing error. Closing quote not found." << std::endl;
