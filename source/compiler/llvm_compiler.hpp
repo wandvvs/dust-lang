@@ -34,7 +34,6 @@ private:
 
     bool std_externed = false;
 
-
 public:
     LLVMCompiler(const std::string& module_name, TokenBuffer tokens_buffer);
 
@@ -53,6 +52,8 @@ public:
 
     llvm::Function* m_printf_func;
     llvm::FunctionType* m_printf_type;
+
+    void process_check(const std::string& left_variable_name);
 
     void process_mut();
     void process_const();
