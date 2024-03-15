@@ -10,11 +10,7 @@ void TokenBuffer::move_next()
 {
     ++pos;
 
-    if(pos >= m_tokens.size())
-    {
-        // wtf
-    }
-    else
+    if(!(pos >= m_tokens.size()))
     {
         m_current = m_tokens.at(pos);
     }
