@@ -33,15 +33,33 @@ add_executable(dust-lang
 llvm_map_components_to_libnames(llvm_libs support core irreader)
 
 target_link_libraries(dust-lang ${llvm_libs})
-
 enable_testing()
 
 if(BUILD_TESTS)
     add_executable(dust-lang-tests
                    test/tests.cpp
+
+               source/lexer/lexer.hpp
+               source/lexer/lexer.cpp
+
+               source/token/token_type.hpp
+               source/token/token.cpp
+               source/token/token.hpp
+
+                source/token/token_buffer/token_buffer.cpp
+               source/token/token_buffer/token_buffer.hpp
+
+source/compiler/llvm_compiler.hpp
+               source/compiler/llvm_compiler.cpp
+
+               source/compiler/llvm_executable_builder.hpp
+               source/compiler/llvm_executable_builder.cpp
+
+
                    )
     
     target_link_libraries(dust-lang-tests ${GTEST_LIBRARIES} pthread)
+    target_link_libraries(dust-lang-tests ${llvm_libs})
     
     add_test(NAME dust-lang-tests COMMAND dust-lang-tests)
 endif()
