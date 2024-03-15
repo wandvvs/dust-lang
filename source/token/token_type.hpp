@@ -24,7 +24,7 @@ enum class TokenType
     MINUS,
     MUL,
     DIV,
-    EXTERN_STD,
+    USE_IO,
     CHECK,
     MORE,
     LESS,
@@ -56,8 +56,8 @@ inline std::string token_type_to_string(TokenType m_type)
             return "FALSE";
         case TokenType::INT_LITERAL:
             return "INT_LITERAL";
-        case TokenType::EXTERN_STD:
-            return "EXTERN_STD";
+        case TokenType::USE_IO:
+            return "USE_IO";
         case TokenType::PLUS:
             return "PLUS";
         case TokenType::MINUS:
