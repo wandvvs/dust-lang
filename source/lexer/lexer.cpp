@@ -64,15 +64,15 @@ std::vector<Token> Lexer::tokenize()
                 {
                     tokens.emplace_back(TokenType::FALSE, std::move(keyword));
                 }
-                else if (keyword == "extern") {
+                else if (keyword == "use") {
                 move_next();
                 std::string next_keyword;
                 while (std::isalpha(m_current)) {
                     next_keyword.push_back(m_current);
                     move_next();
                 }
-                if (next_keyword == "std") {
-                    tokens.emplace_back(TokenType::EXTERN_STD, "extern std");
+                if (next_keyword == "io") {
+                    tokens.emplace_back(TokenType::USE_IO, "use io");
                 } else {
                     tokens.emplace_back(TokenType::IDENTIFIER, std::move(keyword));
                 }
