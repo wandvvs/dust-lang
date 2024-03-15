@@ -32,14 +32,6 @@ private:
     std::unordered_map<std::string, llvm::Value*> m_boolean_variables;
     std::unordered_set<std::string> m_constants;
 
-    bool std_externed = false;
-
-public:
-    LLVMCompiler(const std::string& module_name, TokenBuffer tokens_buffer);
-
-    void check_token_type(TokenType expected_type, const std::string& error_message) const;
-    void generate_main_function();
-
     llvm::Value* process_exit();
     void process_writeln();
 
@@ -54,6 +46,7 @@ public:
     llvm::FunctionType* m_printf_type;
 
     void process_check(const std::string& left_variable_name);
+    void process_global_variables(llvm::Value* left_expression, llvm::Value* right_expression, std::string left_variable_name, TokenType prev);
 
     void process_mut();
     void process_const();
@@ -62,7 +55,14 @@ public:
     llvm::Value* get_variable(const std::string& name) const;
     void set_variable(const std::string& name, llvm::Value* value);
 
+    void check_token_type(TokenType expected_type, const std::string& error_message) const;
+
+    bool std_externed = false;
+
+public:
+    LLVMCompiler(const std::string& module_name, TokenBuffer tokens_buffer);
+
+    void generate_main_function();
     std::string get_llvm_ir_as_string() const;
-    void print_ir() const;
     void verify_module();
 };

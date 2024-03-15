@@ -424,6 +424,41 @@ void LLVMCompiler::process_writeln()
     m_tokens_buffer.move_next();
 }
 
+void LLVMCompiler::process_global_variables(llvm::Value* left_expression, llvm::Value* right_expression, std::string left_variable_name, TokenType prev)
+{
+    if (llvm::GlobalVariable* global_left_string = llvm::dyn_cast<llvm::GlobalVariable>(left_expression)) 
+    {
+        if (llvm::GlobalVariable* global_right_string = llvm::dyn_cast<llvm::GlobalVariable>(right_expression)) 
+        {
+            llvm::ConstantDataSequential* global_left_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_left_string->getInitializer());
+            llvm::ConstantDataSequential* global_right_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_right_string->getInitializer());
+
+            if (global_left_string_data && global_right_string_data) 
+            {
+                bool is_strings_equal = global_left_string_data->getRawDataValues() == global_right_string_data->getRawDataValues();
+
+                if(prev == TokenType::NOT_EQUAL)
+                {
+                    if(!is_strings_equal)
+                    {
+                        is_strings_equal = true;
+                    }
+                    else if(is_strings_equal)
+                    {
+                        is_strings_equal = false;
+                    }
+                }
+
+                std::string bool_string = is_strings_equal ? "true" : "false";
+                llvm::Value* bool_str_ptr = m_builder.CreateGlobalStringPtr(std::move(bool_string));
+
+                m_boolean_variables[left_variable_name] = bool_str_ptr;
+
+            }
+        }
+    } 
+}
+
 void LLVMCompiler::process_check(const std::string& left_variable_name)
 {
     m_tokens_buffer.move_next();
@@ -522,7 +557,9 @@ void LLVMCompiler::process_check(const std::string& left_variable_name)
 
         m_tokens_buffer.move_next();
 
-        if (current_type() == TokenType::EQUAL || current_type() == TokenType::NOT_EQUAL) {
+        if (current_type() == TokenType::EQUAL || current_type() == TokenType::NOT_EQUAL) 
+        {
+            TokenType prev = current_type();
             m_tokens_buffer.move_next();
 
             if (current_type() == TokenType::QOUTE) {
@@ -534,49 +571,13 @@ void LLVMCompiler::process_check(const std::string& left_variable_name)
 
                 right_expression = m_builder.CreateGlobalStringPtr(std::move(right_string_literal));
 
-                if (llvm::GlobalVariable* global_left_string = llvm::dyn_cast<llvm::GlobalVariable>(left_expression)) 
-                {
-                    if (llvm::GlobalVariable* global_right_string = llvm::dyn_cast<llvm::GlobalVariable>(right_expression)) 
-                    {
-                        llvm::ConstantDataSequential* global_left_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_left_string->getInitializer());
-                        llvm::ConstantDataSequential* global_right_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_right_string->getInitializer());
-
-                        if (global_left_string_data && global_right_string_data) 
-                        {
-                            bool is_strings_equal = global_left_string_data->getRawDataValues() == global_right_string_data->getRawDataValues();
-
-                            std::string bool_string = is_strings_equal ? "true" : "false";
-                            llvm::Value* bool_str_ptr = m_builder.CreateGlobalStringPtr(std::move(bool_string));
-
-                            m_boolean_variables[left_variable_name] = bool_str_ptr;
-
-                        }
-                    }
-                }
+                process_global_variables(left_expression, right_expression, std::move(left_variable_name), prev);
             }
             else if(current_type() == TokenType::IDENTIFIER && m_string_variables.find(current_value()) != m_string_variables.end())
             {
                 right_expression = m_string_variables[current_value()];
 
-                if (llvm::GlobalVariable* global_left_string = llvm::dyn_cast<llvm::GlobalVariable>(left_expression)) 
-                {
-                    if (llvm::GlobalVariable* global_right_string = llvm::dyn_cast<llvm::GlobalVariable>(right_expression)) 
-                    {
-                        llvm::ConstantDataSequential* global_left_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_left_string->getInitializer());
-                        llvm::ConstantDataSequential* global_right_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_right_string->getInitializer());
-
-                        if (global_left_string_data && global_right_string_data) 
-                        {
-                            bool is_strings_equal = global_left_string_data->getRawDataValues() == global_right_string_data->getRawDataValues();
-
-                            std::string bool_string = is_strings_equal ? "true" : "false";
-                            llvm::Value* bool_str_ptr = m_builder.CreateGlobalStringPtr(std::move(bool_string));
-
-                            m_boolean_variables[left_variable_name] = bool_str_ptr;
-
-                        }
-                    }
-                }
+                process_global_variables(left_expression, right_expression, std::move(left_variable_name), prev); 
 
                 m_tokens_buffer.move_next();
             }
@@ -597,6 +598,7 @@ void LLVMCompiler::process_check(const std::string& left_variable_name)
 
         if(current_type() == TokenType::EQUAL || current_type() == TokenType::NOT_EQUAL)
         {
+            TokenType prev = current_type();
             m_tokens_buffer.move_next();
 
             if(current_type() == TokenType::QOUTE)
@@ -607,6 +609,18 @@ void LLVMCompiler::process_check(const std::string& left_variable_name)
 
                 bool strings_equal = left_string_literal == right_string_literal;
 
+                if(prev == TokenType::NOT_EQUAL)
+                {
+                    if(!strings_equal)
+                    {
+                        strings_equal = true;
+                    }
+                    else if(strings_equal)
+                    {
+                        strings_equal = false;
+                    }
+                }
+
                 std::string bool_string = strings_equal ? "true" : "false";
                 llvm::Value* bool_str_ptr = m_builder.CreateGlobalStringPtr(std::move(bool_string));
 
@@ -616,26 +630,9 @@ void LLVMCompiler::process_check(const std::string& left_variable_name)
             {
                 right_expression = m_string_variables[current_value()];  
                 left_expression = m_builder.CreateGlobalStringPtr(left_string_literal);
+                
+                process_global_variables(left_expression, right_expression, std::move(left_variable_name), prev);
 
-                if (llvm::GlobalVariable* global_right_string = llvm::dyn_cast<llvm::GlobalVariable>(right_expression)) 
-                {
-                    if (llvm::GlobalVariable* global_left_string = llvm::dyn_cast<llvm::GlobalVariable>(left_expression)) 
-                    {
-                        llvm::ConstantDataSequential* global_right_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_right_string->getInitializer());
-                        llvm::ConstantDataSequential* global_left_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_left_string->getInitializer());
-
-                        if (global_right_string_data && global_left_string_data) 
-                        {
-                            bool is_strings_equal = global_right_string_data->getRawDataValues() == global_left_string_data->getRawDataValues();
-
-                            std::string bool_string = is_strings_equal ? "true" : "false";
-                            llvm::Value* bool_str_ptr = m_builder.CreateGlobalStringPtr(std::move(bool_string));
-
-                            m_boolean_variables[left_variable_name] = bool_str_ptr;
-                        }
-                        
-                    }
-                }
             }
            m_tokens_buffer.move_next();
         }
@@ -653,6 +650,7 @@ void LLVMCompiler::process_check(const std::string& left_variable_name)
 
         if(current_type() == TokenType::EQUAL || current_type() == TokenType::NOT_EQUAL)
         {
+            TokenType prev = current_type();
             m_tokens_buffer.move_next();
 
             if(current_type() == TokenType::TRUE || current_type() == TokenType::FALSE)
@@ -661,6 +659,18 @@ void LLVMCompiler::process_check(const std::string& left_variable_name)
                 m_tokens_buffer.move_next();
 
                 bool strings_equal = left_string_literal == right_string_literal;
+
+                if(prev == TokenType::NOT_EQUAL)
+                {
+                    if(!strings_equal)
+                    {
+                        strings_equal = true;
+                    }
+                    else if(strings_equal)
+                    {
+                        strings_equal = false;
+                    }
+                }
 
                 std::string bool_string = strings_equal ? "true" : "false";
                 llvm::Value* bool_str_ptr = m_builder.CreateGlobalStringPtr(std::move(bool_string));
@@ -672,28 +682,16 @@ void LLVMCompiler::process_check(const std::string& left_variable_name)
                 right_expression = m_boolean_variables[current_value()];  
                 left_expression = m_builder.CreateGlobalStringPtr(left_string_literal);
 
-                if (llvm::GlobalVariable* global_right_string = llvm::dyn_cast<llvm::GlobalVariable>(right_expression)) 
+                process_global_variables(left_expression, right_expression, std::move(left_variable_name), prev); 
+                if(left_variable_name.empty())
                 {
-                    if (llvm::GlobalVariable* global_left_string = llvm::dyn_cast<llvm::GlobalVariable>(left_expression)) 
-                    {
-                        llvm::ConstantDataSequential* global_right_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_right_string->getInitializer());
-                        llvm::ConstantDataSequential* global_left_string_data = llvm::dyn_cast<llvm::ConstantDataSequential>(global_left_string->getInitializer());
-
-                        if (global_right_string_data && global_left_string_data) 
-                        {
-                            bool is_strings_equal = global_right_string_data->getRawDataValues() == global_left_string_data->getRawDataValues();
-
-                            std::string bool_string = is_strings_equal ? "true" : "false";
-                            llvm::Value* bool_str_ptr = m_builder.CreateGlobalStringPtr(std::move(bool_string));
-
-                            m_boolean_variables[left_variable_name] = bool_str_ptr;
-                            m_tokens_buffer.move_next();
-                        }
-                        
-                    }
+                    std::cout << "empty" << std::endl;
+                }
+                else
+                {
+                    std::cout << "not empty" << std::endl;
                 }
             }
-
         }
     }
     else
@@ -893,12 +891,6 @@ std::string LLVMCompiler::get_llvm_ir_as_string() const
     llvm::raw_string_ostream OS(IRString);
     m_module.print(OS, nullptr);
     return OS.str();
-}
-
-void LLVMCompiler::print_ir() const
-{
-    llvm::outs() << "Generated LLVM IR:\n";
-    m_module.print(llvm::outs(), nullptr);
 }
  
 void LLVMCompiler::verify_module() { llvm::verifyModule(m_module); }
