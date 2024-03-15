@@ -1,5 +1,5 @@
 # Dust programming language
-Сompiled, simple imperative programming language created for the purpose of education with support for basic variable declarations, assignments, expressions, printing, and program termination.
+Сompiled, simple imperative programming language created for the purpose of education with support for basic variable declarations, assignments, expressions, printing, program termination like exit() in C language and logical operators.
 The compiler is made using LLVM.
 When building the compiler, i didn`t implement AST, as many people do.
 All tests were performed on Ubuntu Linux.
