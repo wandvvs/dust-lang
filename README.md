@@ -18,7 +18,7 @@ All tests were performed on Ubuntu Linux.
 - [x] Logical operators
 - [ ] If statement
 - [ ] Loop statement
-- [ ] Math functions for extern std
+- [ ] Math functions
 - [ ] Etc...
 
 ## Getting started
